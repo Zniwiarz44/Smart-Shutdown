@@ -1,0 +1,9 @@
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Debug\Smart Shutdown.exe.config
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Debug\Smart Shutdown.exe
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Debug\Smart Shutdown.pdb
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Debug\Smart_Shutdown.Form1.resources
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Debug\Smart_Shutdown.Properties.Resources.resources
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Debug\Smart Shutdown.csproj.GenerateResource.Cache
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Debug\Smart Shutdown.exe
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Debug\Smart Shutdown.pdb
+C:\Users\Krystian\documents\visual studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Debug\Smart Shutdown.csprojResolveAssemblyReference.cache
