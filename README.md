@@ -15,3 +15,6 @@ Note:
  
 TODOs:
 - Implement ability to drag the window around the screen as borderless windows require addition functions.
+
+Current limitations:
+- When user logs off (Win+L) program will not shutdown the system. To shutdown user has to select Use windows closing window. That way even when logged off system will shutdown.
