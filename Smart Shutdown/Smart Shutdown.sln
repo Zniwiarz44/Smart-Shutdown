@@ -5,16 +5,22 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart Shutdown", "Smart Shutdown\Smart Shutdown.csproj", "{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShutdownLogic", "ShutdownLogic\ShutdownLogic.csproj", "{5A2F7757-7042-42DC-A4F7-CE6CDF08A228}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FED0546B-3FEB-455A-A0FB-FA3DF03DF619}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A2F7757-7042-42DC-A4F7-CE6CDF08A228}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{5A2F7757-7042-42DC-A4F7-CE6CDF08A228}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{5A2F7757-7042-42DC-A4F7-CE6CDF08A228}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A2F7757-7042-42DC-A4F7-CE6CDF08A228}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

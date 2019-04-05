@@ -1,0 +1,11 @@
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Release\Smart Shutdown.exe.config
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Release\Smart Shutdown.exe
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Release\Smart Shutdown.pdb
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Release\ShutdownLogic.dll
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\bin\Release\ShutdownLogic.pdb
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Release\Smart Shutdown.csprojResolveAssemblyReference.cache
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Release\Smart_Shutdown.Form1.resources
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Release\Smart_Shutdown.Properties.Resources.resources
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Release\Smart Shutdown.csproj.GenerateResource.Cache
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Release\Smart Shutdown.exe
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\Smart Shutdown\obj\Release\Smart Shutdown.pdb

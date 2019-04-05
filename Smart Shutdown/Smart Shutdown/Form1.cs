@@ -1,38 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using ShutdownLogic;
+using System.ComponentModel;
 
 namespace Smart_Shutdown
 {
     public partial class Form1 : Form
     {
-        private int[] timerArr = { 0, 1, 0 };                   // Sample time for the timer to display
-        private Timer t1 = new Timer();
+        // Mouse movement controls
+        public const int WM_NCLBUTTONDOWN = 0xA1;
+        public const int HT_CAPTION = 0x2;
+
+        [DllImportAttribute("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [DllImportAttribute("user32.dll")]
+        public static extern bool ReleaseCapture();
+        // Mouse movement controls
+
         private int networkInactive = netInactiveTime;          // 180sec as default inactive time, if time goes to 0 shutdown
         private bool appRunning = false;
         private const int netInactiveTime = 180;
+        private int unitOfDataIndex = 4;
+        private string activeDataUnitType, timerText;
+        private bool clearWarning = false;
+
         // Holds network interfaces
         private List<PerformanceCounter> instancesList = new List<PerformanceCounter>();
         private Dictionary<string, bool> activeButtonState = new Dictionary<string, bool>();
 
+        delegate void SetCallback();
+
+        ShutdownTimer st = new ShutdownTimer(1000, false);
+        NetworkStats ns = new NetworkStats();
         public Form1()
         {
             InitializeComponent();
             InitializeAdvancedButtons();
-            //InitCustomLabelFont();                    // Custom font causes memory violation
-            // Timer initialization and event handling
-            t1.Tick += new EventHandler(timerTick);     // Everytime timer ticks, timer_Tick will be called
-            t1.Interval = 1000;                         // 1000ms = 1 sec
-            t1.Enabled = false;
+
+            SpeedDataType.SelectedIndex = unitOfDataIndex;
+            activeDataUnitType = SpeedDataType.Text;
             TextTime();
             l_DLSpeed.Text = "Time to shutdown";
 
@@ -43,81 +54,62 @@ namespace Smart_Shutdown
             {
                 instancesList.Add(new PerformanceCounter("Network Interface", "Bytes Received/sec", name));
             }
+            st.timeTickEvent += timerTick;
         }
-
-        private void timerTick(object sender, EventArgs e)
+        
+        private void timerTick()
         {
+            float speed = 0;
+            float.TryParse(tMinSpeed.Text, out speed);
+            ns.CurrentSpeedInBytes();
+            SpeedDataTypeSelection();
+
             if (ch_DLFinished.Checked)
             {
                 networkInactive--;
-                foreach (PerformanceCounter counter in instancesList)
+
+                // If speed is less than the threshold then begin counting down to shutdown
+                if (ns.SpeedBelowTreshold(speed, (UnitOfData)unitOfDataIndex))
                 {
-                    // Value returned in bytes
-                    // May throw AccessViolationException, in .NET Corrupted State Exceptions (CSE) are not allowed to be caught by your standard managed code.
-                    double speedInBytes = counter.NextValue();
-                    l_Warning.Text = "";
-                    if (speedInBytes < 1024)
+                    TextTime();
+                    WarningLabel();
+                    if (networkInactive == 0)
                     {
-                        l_Timer.Text = Math.Round(speedInBytes / 1024) + " bytes/s";                        
-                        if (networkInactive < 60)
-                        {
-                            l_Warning.Text = "Warning, network inactive\nSystem will shutdown in: " + networkInactive + " sec";
-                        }
-                        if (networkInactive == 0)
-                        {
-                            ZeroOutTimer();
-                            t1.Stop();
-                            WindowsShutdown();
-                        }
+                        st.ResetTimer();
+                        st.StopTimer();
+                        WindowsShutdown();
                     }
-                    else if (speedInBytes > 1024 && speedInBytes < 820000)
-                    {
-                        l_Timer.Text = Math.Round(speedInBytes / 1024) + " KB/s";
-                        networkInactive = netInactiveTime;
-                    }
-                    else if (speedInBytes > 820000 && speedInBytes < 838860800)
-                    {
-                        l_Timer.Text = Math.Round(speedInBytes / 1024 / 1024, 2) + " MB/s";
-                        networkInactive = netInactiveTime;
-                    }
-                    else
-                    {
-                        l_Timer.Text = Math.Round(speedInBytes / 1024 / 1024 / 1024, 2) + " GB/s";
-                        networkInactive = netInactiveTime;
-                    }
+                }
+                else
+                {
+                    clearWarning = true;
+                    WarningLabel();
+                    clearWarning = false;
+                    networkInactive = netInactiveTime;
                 }
             }
             else
             {
                 // Shutdown windows when the timer reaches 0, using the application
-                if (timerArr[0] == 0 && timerArr[1] == 0 && timerArr[2] == 0)
+                if (st.Hours == 0 && st.Minutes == 0 && st.Seconds == 0)
                 {
-                    t1.Stop();
+                    st.StopTimer();
                     WindowsShutdown();
                 }
-                else
-                {
-                    tickSecondDec();
-                }
             }
+            TextTime();
         }
-
         private void WindowsShutdown()
         {
-            // Converts Hours and mins to seconds
-            int timeToShutdown = (timerArr[0] * (60 * 60)) + (timerArr[1] * 60) + timerArr[2];       // Hours Minutes Seconds
-
             if (!ch_ForceShutdown.Checked)
             {
-                Process.Start("shutdown", "/s /t " + timeToShutdown);
+                Process.Start("shutdown", "/s /t " + st.TimeToSeconds());
             }
             else
             {
-                Process.Start("shutdown", "/s /f /t " + timeToShutdown);
+                Process.Start("shutdown", "/s /f /t " + st.TimeToSeconds());
             }
-
         }
-
         // Initializes custom 'Digital' font
         private void InitCustomLabelFont()
         {
@@ -143,147 +135,118 @@ namespace Smart_Shutdown
             l_Timer.Font = new Font(pfc.Families[0], l_Timer.Font.Size);
         }
 
-        #region Time buttons functions
-        private void tickSecondInc()
+        // Thread safe calls
+        #region Threads
+        private void TextTime()
         {
-            timerArr[2]++;
-            if (timerArr[2] > 59)
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (this.l_Timer.InvokeRequired)
             {
-                timerArr[2] = 0;
-                timerArr[1]++;
-                if (timerArr[1] > 59)
+                SetCallback d = new SetCallback(TextTime);
+                this.Invoke(d, new object[] { });
+            }
+            else
+            {
+                if (ch_DLFinished.Checked)
                 {
-                    timerArr[1] = 0;
-                    timerArr[0]++;
-                    if (timerArr[0] > 59)
+                    UnitOfData dataType;
+                    // Depending on user's preference convert speed to bits or bytes
+                    if (SpeedDataType.SelectedIndex % 2 == 0)
                     {
-                        timerArr[0] = 0;
+                        timerText = ns.CurrentSpeedFromBits(out dataType) + " " + ns.GetUnitStringRepresentation(dataType);
+                    }
+                    else
+                    {
+                        timerText = ns.CurrentSpeedFromBytes(out dataType) + " " + ns.GetUnitStringRepresentation(dataType);
                     }
                 }
-            }
-            TextTime();
-        }
-
-        private void tickSecondDec()
-        {
-            timerArr[2]--;
-            if (timerArr[2] < 0)
-            {
-                timerArr[2] = 59;
-                timerArr[1]--;
-                if (timerArr[1] < 0)
+                else
                 {
-                    timerArr[1] = 59;
-                    timerArr[0]--;
-                    if (timerArr[0] < 0)
-                    {
-                        timerArr[0] = 59;
-                    }
+                    timerText = st.Hours.ToString("00") + ":" + st.Minutes.ToString("00") + ":" + st.Seconds.ToString("00");
+                }
+                l_Timer.Text = timerText;
+            }
+        }
+        private void SpeedDataTypeSelection()
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (this.SpeedDataType.InvokeRequired)
+            {
+                SetCallback d = new SetCallback(SpeedDataTypeSelection);
+                this.Invoke(d, new object[] { });
+                return;
+            }
+            else
+            {
+                activeDataUnitType = SpeedDataType.Text;
+                unitOfDataIndex = SpeedDataType.SelectedIndex;
+            }
+        }
+        private void WarningLabel()
+        {
+            if (this.SpeedDataType.InvokeRequired)
+            {
+                SetCallback d = new SetCallback(WarningLabel);
+                this.Invoke(d, new object[] { });
+                return;
+            }
+            else
+            {
+                if (networkInactive < 60)
+                {
+                    l_Warning.Text = "Warning, network inactive\nSystem will shutdown in: " + networkInactive + " sec";
+                }
+                if (clearWarning)
+                {
+                    l_Warning.Text = "";
                 }
             }
-            TextTime();
-        }
-
-        private void tickMinuteInc()
-        {
-            timerArr[1]++;
-            if (timerArr[1] > 59)
-            {
-                timerArr[1] = 0;
-                timerArr[0]++;
-                if (timerArr[0] > 59)
-                {
-                    timerArr[0] = 0;
-                }
-            }
-            TextTime();
-        }
-        private void tickMinuteDec()
-        {
-            timerArr[1]--;
-            if (timerArr[1] < 0)
-            {
-                timerArr[1] = 59;
-                timerArr[0]--;
-                if (timerArr[0] < 0)
-                {
-                    timerArr[0] = 59;
-                }
-            }
-            TextTime();
-        }
-
-        private void tickHourInc()
-        {
-            timerArr[0]++;
-            if (timerArr[0] > 59)
-            {
-                timerArr[0] = 0;
-            }
-            TextTime();
-        }
-        private void tickHourDec()
-        {
-            timerArr[0]--;
-            if (timerArr[0] < 0)
-            {
-                timerArr[0] = 59;
-            }
-            TextTime();
         }
         #endregion
 
         #region Time buttons
         private void bSecInc_Click(object sender, EventArgs e)
         {
-            tickSecondInc();
+            st.TickSecondInc(true);
+            TextTime();
         }
 
         private void bSecDec_Click(object sender, EventArgs e)
         {
-            tickSecondDec();
+            st.TickSecondDec(true);
+            TextTime();
         }
 
         private void bMinInc_Click(object sender, EventArgs e)
         {
-            tickMinuteInc();
+            st.TickMinuteInc(true);
+            TextTime();
         }
 
         private void bMinDec_Click(object sender, EventArgs e)
         {
-            tickMinuteDec();
+            st.TickMinuteDec(true);
+            TextTime();
         }
 
         private void bHourInc_Click(object sender, EventArgs e)
         {
-            tickHourInc();
+            st.TickHourInc();
+            TextTime();
         }
 
         private void bHourDec_Click(object sender, EventArgs e)
         {
-            tickHourDec();
+            st.TickHourDec();
+            TextTime();
         }
         #endregion
 
         #region Timer options
-        private void TextTime()
-        {
-            l_Timer.Text = timerArr[0].ToString("00") + ":" + timerArr[1].ToString("00") + ":" + timerArr[2].ToString("00");
-        }
-        private void ZeroOutTimer()
-        {
-            timerArr[0] = 0;
-            timerArr[1] = 0;
-            timerArr[2] = 0;
-        }
-        private void ResetTimer()
-        {
-            timerArr[0] = 0;
-            timerArr[1] = 1;
-            timerArr[2] = 0;
-            // Update the display
-            TextTime();
-        }
         private void EnableTimeButtons(bool disableButtons)
         {
             bHourInc.Enabled = disableButtons;
@@ -298,12 +261,11 @@ namespace Smart_Shutdown
         #region Settings
         private void bShutdown_Click(object sender, EventArgs e)
         {
-
-            if (ch_ForceShutdown.Checked && (timerArr[0] <= 0 && timerArr[1] <= 0 && timerArr[2] <= 0))
+            if (ch_ForceShutdown.Checked && (st.Hours == 0 && st.Minutes == 0 && st.Seconds == 0))
             {
                 if (ch_DLFinished.Checked)
                 {
-                    timerArr[2] = 1;
+                   st.TickSecondInc();
                 }
                 else
                 {
@@ -312,7 +274,9 @@ namespace Smart_Shutdown
             }
             else
             {
-                l_Warning.Text = "";
+                clearWarning = true;
+                WarningLabel();
+                clearWarning = false;
                 // Ensures that advanced options enable states remain original
                 if (!appRunning)
                 {
@@ -325,12 +289,12 @@ namespace Smart_Shutdown
                 }
                 else if (ch_DLFinished.Checked)
                 {
-                    t1.Start();
+                    st.StartTimer();
                     l_DLSpeed.Text = "Network Usage\n(Received):";
                 }
                 else
                 {
-                    t1.Start();
+                    st.StartTimer();
                     l_DLSpeed.Text = "Time to shutdown";
                 }
                 bShutdown.Enabled = false;
@@ -338,14 +302,15 @@ namespace Smart_Shutdown
         }
         private void bPause_Click(object sender, EventArgs e)
         {
-            t1.Stop();
+            st.StopTimer();
             bShutdown.Enabled = true;
             appRunning = true;
         }
         private void bAbort_Click(object sender, EventArgs e)
         {
-            t1.Stop();
-            ResetTimer();
+            st.StopTimer();
+            st.ResetTimer();
+            TextTime();
             l_Warning.Text = "";
             Process.Start("shutdown", "/a");
             EnableAdvancedButtons(true);
@@ -359,8 +324,8 @@ namespace Smart_Shutdown
         {
             if (!ch_DLFinished.Checked)
             {
-                t1.Stop();
-                ResetTimer();
+                st.StopTimer();
+                st.ResetTimer();
                 ch_UseWindowsClose.Enabled = true;
                 EnableTimeButtons(true);               // Enable buttons to change time
             }
@@ -369,6 +334,7 @@ namespace Smart_Shutdown
                 ch_UseWindowsClose.Enabled = false;
                 EnableTimeButtons(false);              // Disable buttons to change time
             }
+            TextTime();
         }
 
         private void ch_UseWindowsClose_CheckedChanged(object sender, EventArgs e)
@@ -429,8 +395,10 @@ namespace Smart_Shutdown
         #region Window options
         private void bClose_Click(object sender, EventArgs e)
         {
-            t1.Stop();
-            t1.Dispose();
+            st.StopTimer();
+            st.DisposeTimer();
+            myNotifyIcon.Icon = null;
+            myNotifyIcon.Dispose();
             Application.Exit();
         }
 
@@ -453,5 +421,24 @@ namespace Smart_Shutdown
             this.WindowState = FormWindowState.Normal;
         }
         #endregion
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel_Advanced_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panel_Main_Paint(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+            }
+        }
     }
 }

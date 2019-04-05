@@ -1,0 +1,4 @@
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\ShutdownLogic\bin\Release\ShutdownLogic.dll
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\ShutdownLogic\bin\Release\ShutdownLogic.pdb
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\ShutdownLogic\obj\Release\ShutdownLogic.dll
+C:\Users\Krystian\Documents\Visual Studio 2013\Projects\Smart Shutdown\ShutdownLogic\obj\Release\ShutdownLogic.pdb

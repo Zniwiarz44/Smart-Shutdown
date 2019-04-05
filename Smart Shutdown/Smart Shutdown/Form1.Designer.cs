@@ -41,8 +41,8 @@
             this.bMinimize = new System.Windows.Forms.Button();
             this.l_DLSpeed = new System.Windows.Forms.Label();
             this.panel_Timer = new System.Windows.Forms.Panel();
-            this.bHourInc = new System.Windows.Forms.Button();
             this.l_Timer = new System.Windows.Forms.Label();
+            this.bHourInc = new System.Windows.Forms.Button();
             this.bSecDec = new System.Windows.Forms.Button();
             this.bMinInc = new System.Windows.Forms.Button();
             this.bMinDec = new System.Windows.Forms.Button();
@@ -50,6 +50,9 @@
             this.bHourDec = new System.Windows.Forms.Button();
             this.bClose = new System.Windows.Forms.Button();
             this.panel_Advanced = new System.Windows.Forms.Panel();
+            this.SpeedDataType = new System.Windows.Forms.ComboBox();
+            this.lUsageMeasure = new System.Windows.Forms.Label();
+            this.tMinSpeed = new System.Windows.Forms.TextBox();
             this.ch_ForceShutdown = new System.Windows.Forms.CheckBox();
             this.ch_DLFinished = new System.Windows.Forms.CheckBox();
             this.ch_UseWindowsClose = new System.Windows.Forms.CheckBox();
@@ -153,6 +156,7 @@
             this.panel_Main.Name = "panel_Main";
             this.panel_Main.Size = new System.Drawing.Size(736, 465);
             this.panel_Main.TabIndex = 3;
+            this.panel_Main.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel_Main_Paint);
             // 
             // l_Warning
             // 
@@ -191,8 +195,8 @@
             // 
             // panel_Timer
             // 
-            this.panel_Timer.Controls.Add(this.bHourInc);
             this.panel_Timer.Controls.Add(this.l_Timer);
+            this.panel_Timer.Controls.Add(this.bHourInc);
             this.panel_Timer.Controls.Add(this.bSecDec);
             this.panel_Timer.Controls.Add(this.bMinInc);
             this.panel_Timer.Controls.Add(this.bMinDec);
@@ -200,8 +204,20 @@
             this.panel_Timer.Controls.Add(this.bHourDec);
             this.panel_Timer.Location = new System.Drawing.Point(233, 107);
             this.panel_Timer.Name = "panel_Timer";
-            this.panel_Timer.Size = new System.Drawing.Size(286, 162);
+            this.panel_Timer.Size = new System.Drawing.Size(491, 162);
             this.panel_Timer.TabIndex = 7;
+            // 
+            // l_Timer
+            // 
+            this.l_Timer.AutoSize = true;
+            this.l_Timer.Font = new System.Drawing.Font("Microsoft Sans Serif", 48F);
+            this.l_Timer.ForeColor = System.Drawing.Color.SteelBlue;
+            this.l_Timer.Location = new System.Drawing.Point(0, 38);
+            this.l_Timer.Name = "l_Timer";
+            this.l_Timer.Size = new System.Drawing.Size(278, 84);
+            this.l_Timer.TabIndex = 2;
+            this.l_Timer.Text = "22:12:39";
+            this.l_Timer.UseCompatibleTextRendering = true;
             // 
             // bHourInc
             // 
@@ -215,18 +231,6 @@
             this.bHourInc.Text = "▲";
             this.bHourInc.UseVisualStyleBackColor = true;
             this.bHourInc.Click += new System.EventHandler(this.bHourInc_Click);
-            // 
-            // l_Timer
-            // 
-            this.l_Timer.AutoSize = true;
-            this.l_Timer.Font = new System.Drawing.Font("Microsoft Sans Serif", 48F);
-            this.l_Timer.ForeColor = System.Drawing.Color.SteelBlue;
-            this.l_Timer.Location = new System.Drawing.Point(0, 38);
-            this.l_Timer.Name = "l_Timer";
-            this.l_Timer.Size = new System.Drawing.Size(278, 84);
-            this.l_Timer.TabIndex = 2;
-            this.l_Timer.Text = "22:12:39";
-            this.l_Timer.UseCompatibleTextRendering = true;
             // 
             // bSecDec
             // 
@@ -311,6 +315,9 @@
             // 
             this.panel_Advanced.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.panel_Advanced.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel_Advanced.Controls.Add(this.SpeedDataType);
+            this.panel_Advanced.Controls.Add(this.lUsageMeasure);
+            this.panel_Advanced.Controls.Add(this.tMinSpeed);
             this.panel_Advanced.Controls.Add(this.ch_ForceShutdown);
             this.panel_Advanced.Controls.Add(this.ch_DLFinished);
             this.panel_Advanced.Controls.Add(this.ch_UseWindowsClose);
@@ -319,6 +326,58 @@
             this.panel_Advanced.Name = "panel_Advanced";
             this.panel_Advanced.Size = new System.Drawing.Size(718, 178);
             this.panel_Advanced.TabIndex = 4;
+            this.panel_Advanced.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Advanced_Paint);
+            // 
+            // SpeedDataType
+            // 
+            this.SpeedDataType.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(43)))), ((int)(((byte)(52)))));
+            this.SpeedDataType.DropDownHeight = 100;
+            this.SpeedDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.SpeedDataType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.SpeedDataType.Font = new System.Drawing.Font("Century Gothic", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.SpeedDataType.ForeColor = System.Drawing.Color.CadetBlue;
+            this.SpeedDataType.FormattingEnabled = true;
+            this.SpeedDataType.IntegralHeight = false;
+            this.SpeedDataType.ItemHeight = 20;
+            this.SpeedDataType.Items.AddRange(new object[] {
+            "Bit/s",
+            "Byte/s",
+            "Kb/s",
+            "KB/s",
+            "Mb/s",
+            "MB/s",
+            "Gb/s",
+            "GB/s",
+            "Tb/s",
+            "TB/s"});
+            this.SpeedDataType.Location = new System.Drawing.Point(460, 71);
+            this.SpeedDataType.Name = "SpeedDataType";
+            this.SpeedDataType.Size = new System.Drawing.Size(69, 28);
+            this.SpeedDataType.TabIndex = 11;
+            this.SpeedDataType.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // lUsageMeasure
+            // 
+            this.lUsageMeasure.AutoSize = true;
+            this.lUsageMeasure.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.lUsageMeasure.ForeColor = System.Drawing.Color.CadetBlue;
+            this.lUsageMeasure.Location = new System.Drawing.Point(535, 77);
+            this.lUsageMeasure.Name = "lUsageMeasure";
+            this.lUsageMeasure.Size = new System.Drawing.Size(71, 21);
+            this.lUsageMeasure.TabIndex = 10;
+            this.lUsageMeasure.Text = "for 3min";
+            // 
+            // tMinSpeed
+            // 
+            this.tMinSpeed.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(43)))), ((int)(((byte)(52)))));
+            this.tMinSpeed.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tMinSpeed.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.tMinSpeed.ForeColor = System.Drawing.Color.CadetBlue;
+            this.tMinSpeed.Location = new System.Drawing.Point(407, 71);
+            this.tMinSpeed.Name = "tMinSpeed";
+            this.tMinSpeed.Size = new System.Drawing.Size(47, 27);
+            this.tMinSpeed.TabIndex = 8;
+            this.tMinSpeed.Text = "3";
             // 
             // ch_ForceShutdown
             // 
@@ -329,9 +388,9 @@
             this.ch_ForceShutdown.ForeColor = System.Drawing.Color.CadetBlue;
             this.ch_ForceShutdown.Location = new System.Drawing.Point(13, 100);
             this.ch_ForceShutdown.Name = "ch_ForceShutdown";
-            this.ch_ForceShutdown.Size = new System.Drawing.Size(324, 25);
+            this.ch_ForceShutdown.Size = new System.Drawing.Size(328, 25);
             this.ch_ForceShutdown.TabIndex = 7;
-            this.ch_ForceShutdown.Text = "Force shutdown, time has to be > 0sec";
+            this.ch_ForceShutdown.Text = "Force shutdown, time has to be > 0 sec";
             this.ch_ForceShutdown.UseVisualStyleBackColor = false;
             // 
             // ch_DLFinished
@@ -343,9 +402,9 @@
             this.ch_DLFinished.ForeColor = System.Drawing.Color.CadetBlue;
             this.ch_DLFinished.Location = new System.Drawing.Point(13, 69);
             this.ch_DLFinished.Name = "ch_DLFinished";
-            this.ch_DLFinished.Size = new System.Drawing.Size(441, 25);
+            this.ch_DLFinished.Size = new System.Drawing.Size(388, 25);
             this.ch_DLFinished.TabIndex = 6;
-            this.ch_DLFinished.Text = "Shutdown when network usage is low < 1KB/s for 3min";
+            this.ch_DLFinished.Text = "Shutdown when network usage is lower then <";
             this.ch_DLFinished.UseVisualStyleBackColor = false;
             this.ch_DLFinished.CheckedChanged += new System.EventHandler(this.ch_DLFinished_CheckedChanged);
             // 
@@ -401,6 +460,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(947, 465);
             this.Controls.Add(this.panel_Main);
             this.Controls.Add(this.panel2);
@@ -449,6 +509,9 @@
         private System.Windows.Forms.Label l_Warning;
         private System.Windows.Forms.CheckBox ch_ForceShutdown;
         private System.Windows.Forms.NotifyIcon myNotifyIcon;
+        private System.Windows.Forms.TextBox tMinSpeed;
+        private System.Windows.Forms.Label lUsageMeasure;
+        private System.Windows.Forms.ComboBox SpeedDataType;
     }
 }
 
