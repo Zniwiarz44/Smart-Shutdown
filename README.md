@@ -1,4 +1,4 @@
-# Smart-Shutdown v1.0
+# Smart-Shutdown v1.0.0
 
 Features:
 - Countdown timer.
