@@ -18,18 +18,18 @@ Current limitations:
 
 Version 1.1.0
 
-Changes
-• Separated business logic from interface.
-• Added multithreading.
-• Each section of time is updated independently.
-• Added option to enter minimum speed before shutdown.
-• Added dropdown with data transfer speed rate.
-• Minimum transfer speed can be updated at runtime.
-• Transfer can be updated at runtime.
-• Speed is displayed in bits/sec or bytes/sec based on dropdown selection.
-• Added support for draging the window with left click on the main panel.
+Changes  
+• Separated business logic from interface.  
+• Added multithreading.  
+• Each section of time is updated independently.  
+• Added option to enter minimum speed before shutdown.  
+• Added dropdown with data transfer speed rate.  
+• Minimum transfer speed can be updated at runtime.  
+• Transfer can be updated at runtime.  
+• Speed is displayed in bits/sec or bytes/sec based on dropdown selection.  
+• Added support for draging the window with left click on the main panel.  
 
-Bugfixes
-• Fixed issue when decresing time in seconds will incorrectly update the time display.
-• Fixed network usage not being detected when connected via ethernet.
-• Fixed icon not dissapering from system tray after closing the application.
+Bugfixes  
+• Fixed issue when decresing time in seconds will incorrectly update the time display.  
+• Fixed network usage not being detected when connected via ethernet.  
+• Fixed icon not dissapering from system tray after closing the application.  
